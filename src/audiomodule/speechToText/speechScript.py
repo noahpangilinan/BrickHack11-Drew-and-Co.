@@ -19,7 +19,6 @@ def clearFileOutput():
 def on_drop(event):
     # This updates the entry with the dropped file path
     inScript.set(event.data)
-    open_file()
 
 def open_file():
     try:
@@ -46,9 +45,13 @@ def open_file():
     except Exception as e:
         print(f"An error occurred: {e}")
 
+    # Close UI
+    root.quit()
+
 
 def createUI():
     # Set up the main Tkinter window
+    global root
     root = TkinterDnD.Tk()
     root.title("File Reader")
     root.geometry("600x300")
@@ -78,6 +81,7 @@ def createUI():
 
     # Start the main event loop
     root.mainloop()
+
 
 readSpeech()
 
