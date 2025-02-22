@@ -10,6 +10,10 @@ init:
 clean:
 	rmdir /s /q venv
 
+.PHONY: venv
+venv:
+	.\venv\Scripts\Activate
+
 .PHONY: help
 help:
 	@echo "Available targets:"
