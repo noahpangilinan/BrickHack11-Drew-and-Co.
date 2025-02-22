@@ -3,11 +3,12 @@ PIP = pip3
 
 .PHONY: init
 init:
+	virtualenv venv
 	$(PIP) install -r requirements.txt
 
 .PHONY: clean
 clean:
-	rm -rf __pycache__ *.pyc
+	rmdir /s /q venv
 
 .PHONY: help
 help:
