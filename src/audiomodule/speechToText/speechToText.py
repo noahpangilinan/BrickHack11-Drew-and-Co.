@@ -1,7 +1,8 @@
 from vosk import Model, KaldiRecognizer
 import pyaudio
-
-model = Model("C:/Users/NosaS/PycharmProjects/brickhack/src/audiomodule/VOSKmodel/vosk-model-small-en-us-0.15")
+from pathlib import Path
+model_path = Path(__file__).parent.parent
+model = Model(str(model_path) + "/VOSKmodel/vosk-model-small-en-us-0.15")
 recognizer = KaldiRecognizer(model, 16000)
 
 p = pyaudio.PyAudio()
