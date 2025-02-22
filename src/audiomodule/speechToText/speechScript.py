@@ -32,9 +32,9 @@ def open_file():
         with open(outScript, 'w') as file:   # Open output text file and copy input text
             file.write(content)
 
-        with open(outScript, 'r') as file:   # Print output text file to check it was done correctly
-            copy = file.read()
-            print(copy)
+        #with open(outScript, 'r') as file:   # Print output text file to check it was done correctly
+        #    copy = file.read()
+        #    print(copy)
 
     except FileNotFoundError:
         print("Error: File not found. Please try again.")
@@ -46,7 +46,7 @@ def open_file():
         print(f"An error occurred: {e}")
 
     # Close UI
-    root.quit()
+    root.destroy()
 
 
 def createUI():
@@ -81,7 +81,4 @@ def createUI():
 
     # Start the main event loop
     root.mainloop()
-
-
-readSpeech()
 
