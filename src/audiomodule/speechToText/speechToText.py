@@ -86,7 +86,7 @@ def start_audio_detection(file = "", callback=None):
 
                             break
                 # print(f"Next words in speech: {speechdata[0:len(text.split())]}")
-                if enunciated_count > 20:
+                if enunciated_count > 4:
                     display_message("ENUNCIATE!!!")
                     enunciated_count = 0
 
