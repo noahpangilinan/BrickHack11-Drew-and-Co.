@@ -1,6 +1,12 @@
+import queue
 import time
+from tkinter import scrolledtext
+import tkinter as tk
+
 import videomodule.camera as camera
 import threading
+
+from audiomodule.autoscroller.autoscroller import highlight_thread
 from audiomodule.speechToText.speechToText import start_audio_detection
 from audiomodule.speechToText.speechScript import readSpeech
 from pathlib import Path
@@ -10,17 +16,21 @@ from pathlib import Path
 print("my glorious king drew")
 readSpeech()
 
+
+
+
 def main():
     # Start the body tracker in a separate thread
     tracker_thread = threading.Thread(target=camera.body_tracker)
     speech_thread = threading.Thread(target=start_audio_detection, args=[(Path("speech.txt"))])
+    highlight_thread_instance = threading.Thread(target=highlight_thread, args=[(Path("speech.txt"))],  daemon=True)
 
     tracker_thread.start()
     speech_thread.start()
+    highlight_thread_instance.start()
 
     time.sleep(3)
 
-    # Wait for the tracker thread to finish (optional)
     tracker_thread.join()
     speech_thread.join()
 

@@ -1,7 +1,10 @@
 import json
 from os.path import isfile
-from videomodule.camera import display_message
+from tkinter import scrolledtext
+import tkinter as tk
 
+from audiomodule.autoscroller.autoscroller import highlight_word, trigger_highlight
+from videomodule.camera import display_message
 from vosk import Model, KaldiRecognizer
 import pyaudio
 from pathlib import Path
@@ -14,7 +17,7 @@ stream = p.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, fram
 stream.start_stream()
 
 
-def start_audio_detection(file = ""):
+def start_audio_detection(file = "", callback=None):
     speechdata = []
     enunciated_count = 0
     new_words = 0
@@ -35,16 +38,18 @@ def start_audio_detection(file = ""):
 
                 text = result_json.get('text', '')
 
-            # else:
-            #     result = recognizer.PartialResult()  # Get partial results more frequently
-            #     result_json = json.loads(result)
-            #
-            #     text = result_json.get('partial', '')
+            else:
+                result = recognizer.PartialResult()  # Get partial results more frequently
+                result_json = json.loads(result)
+
+                text = result_json.get('partial', '')
+                trigger_highlight(text)
 
 
             if text:
                 # print(f"Recognized: {text}")
-
+                if callback:
+                    callback(text)
                 f.write(text + "\n")
                 new_words = len(text.split())
                 counter = len(text.split())
