@@ -54,13 +54,13 @@ def start_audio_detection(file = "", callback=None):
                 text = text.split()[-1]
                 if callback:
                     callback(text)
-                f.write(text + "\n")
                 counter = len(text.split())
                 sentence = ""
                 # display_message(text)
                 # print("new words:" + str(new_words))
                 if not text == lastword:
                     print(f"Recognized: {text}")
+                    f.write(text + " ")
 
                     lastword = text
 
