@@ -4,6 +4,8 @@ import time
 
 # List to store messages with their timestamps
 active_messages = []
+xRightEarCoords = []
+xLeftEarCoords = []
 
 def display_text_on_feed(image):
     """
@@ -71,6 +73,28 @@ def body_tracker():
             # Draw landmarks
             mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
+            try:
+                landmarks = results.pose_landmarks.landmark
+                noseX = landmarks[mp_pose.PoseLandmark.NOSE.value].x
+                leftEarX = landmarks[mp_pose.PoseLandmark.LEFT_EAR.value].x
+                rightEarX = landmarks[mp_pose.PoseLandmark.RIGHT_EAR.value].x
+
+                if (rightEarX > noseX):
+                    xRightEarCoords.append(rightEarX)
+                else:
+                    xRightEarCoords.clear()
+
+                if (leftEarX < noseX):
+                    xLeftEarCoords.append(leftEarX)
+                else:
+                    xLeftEarCoords.clear()
+
+                if (len(xRightEarCoords) > 35 or len(xLeftEarCoords) > 35):
+                    display_message("TURN HEAD")
+                    
+            except Exception as e:
+                pass
+
             # Display messages
             image = display_text_on_feed(image)
 
@@ -82,3 +106,4 @@ def body_tracker():
 
     cam.release()
     cv2.destroyAllWindows()
+

@@ -37,7 +37,7 @@ def start_audio_detection(file = ""):
 
                     f.write(text + "\n")
                     new_words = len(text.split())
-                    display_message(text)
+                    #display_message(text)
 
                     print("new words:" + str(new_words))
                     for i in text.split():
@@ -49,6 +49,6 @@ def start_audio_detection(file = ""):
 
                             elif not (speechdata[j] == i) and (new_words > 0):
                                 enunciated_count += 1
-                                display_message("Non-enunciated words: " + str(enunciated_count))
+                                #display_message("Non-enunciated words: " + str(enunciated_count))
                                 new_words -= 1
 
