@@ -1,9 +1,13 @@
 import cv2
 import mediapipe as mp
 import time
+import numpy as np
 
 # List to store messages with their timestamps
 active_messages = []
+
+right_writs_tracker = []
+left_writs_tracker = []
 
 def display_text_on_feed(image):
     """
@@ -37,6 +41,40 @@ def display_message(string):
     global active_messages
     active_messages.append((string, time.time()))  # Store message with timestamp
 
+def track_right_wrist(Xcord, Ycord):
+    """
+    adds the right wrist cords to the tracker
+    """
+    global right_writs_tracker
+    right_writs_tracker.append((Xcord, Ycord, time.time()))  # Store message with timestamp
+    check_right_wrist()
+
+def check_right_wrist():
+    """
+    removes old cords and checks if the right wrist is moving
+    """
+    global right_writs_tracker
+    current_time = time.time()
+
+    if len(right_writs_tracker) < 2:
+         print("array not  built yet")
+         return
+    
+    right_writs_tracker = [msg for msg in right_writs_tracker if current_time - msg[2] < 5]  # Remove old cords after 5 seconds
+    
+    # Get the latest wrist position
+    latest_x, latest_y, _ = right_writs_tracker[-1]
+
+    movement_threshold = .02  # Adjust this threshold as needed
+    for x, y, _ in right_writs_tracker[:-1]:
+        distance = np.sqrt((latest_x - x) ** 2 + (latest_y - y) ** 2)
+        if distance > movement_threshold:
+            print("Movement detected")
+            return
+
+    print("Move your wrist")
+    display_message("Move your wrist")
+
 
 def body_tracker():
     """
@@ -49,6 +87,8 @@ def body_tracker():
     if not cam.isOpened():
         print("Camera opening error")
         return
+    
+    last_track_time = time.time()
 
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cam.isOpened():
@@ -70,6 +110,20 @@ def body_tracker():
 
             # Draw landmarks
             mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+
+            try:
+                landmarks = results.pose_landmarks.landmark
+                
+                # Get coordinates
+                right_wrist= [landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y]
+                left_wrist = [landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y]
+                
+                if time.time() - last_track_time >= 1:  # Every ~1 second, add a new message
+                    track_right_wrist(right_wrist[0], right_wrist[1])
+                    last_track_time = time.time()
+                        
+            except:
+                pass
 
             # Display messages
             image = display_text_on_feed(image)
