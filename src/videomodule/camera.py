@@ -25,7 +25,7 @@ def display_text_on_feed(image):
     start_x = 50  # Left margin
     start_y = 50  # Top margin
 
-    # Remove messages older than 3 seconds
+    # Remove messages older than 3 seconds 
     current_time = time.time()
     active_messages = [msg for msg in active_messages if current_time - msg[1] < 3]
 
@@ -110,12 +110,11 @@ def body_tracker():
         print("Error: Could not open camera.")
         return
     
-    cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+    cam.set(cv2.CAP_PROP_FRAME_WIDTH, 700)
+    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 800)
 
     # Make window resizable
-    cv2.namedWindow("Mediapipe Feed", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Mediapipe Feed", 1280, 720)
+    #cv2.namedWindow("Mediapipe Feed", cv2.WINDOW_NORMAL)
 
     last_track_time = time.time()
     
@@ -168,9 +167,11 @@ def body_tracker():
 
                 # Track wrist movement every second
                 if time.time() - last_track_time >= 1:
-                    track_wrist(right_wrist[0], right_wrist[1], left_wrist[0], left_wrist[1])
+                    if (landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].visibility > 0.5 or\
+                        landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].visibility > 0.5):
+                        track_wrist(right_wrist[0], right_wrist[1], left_wrist[0], left_wrist[1])
                     if (len(xRightEarCoords) > 35 or len(xLeftEarCoords) > 35):
-                        display_message("TURN HEAD")
+                        display_message("look forward")
                     last_track_time = time.time()
             
             except AttributeError:
