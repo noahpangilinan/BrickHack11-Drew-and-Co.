@@ -7,7 +7,19 @@ import queue
 global text_display
 global script_text
 global script_path
+exit_program = False
+global root
+def on_key_press(event):
+    """Function to handle key press events."""
+    global exit_program
+    if event.char == 'q':  # Check if 'q' is pressed
+        print("Exiting program...")
+        exit_program = True
+        root.quit()  # Quit the Tkinter main loop
+        root.destroy()  # Destroy the Tkinter window
+
 def createGUI(file):
+    global root
     root = tk.Tk()
     root.title("Live Speech Tracker")
     screen_width = root.winfo_screenwidth()
@@ -25,6 +37,7 @@ def createGUI(file):
 
     # Set the window geometry
     root.geometry(f"{window_width}x{window_height + position_top_right[1]}")
+    root.bind('<KeyPress>', on_key_press)
 
     # Scrolled Text widget to display speech script
     text_display = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=60, font=("Arial", 14))

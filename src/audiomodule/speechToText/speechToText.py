@@ -35,7 +35,7 @@ def start_audio_detection(file = "", callback=None):
 
         while True:
 
-            data = stream.read(256, exception_on_overflow=False)
+            data = stream.read(128, exception_on_overflow=False)
             text = None
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
@@ -54,13 +54,13 @@ def start_audio_detection(file = "", callback=None):
                 text = text.split()[-1]
                 if callback:
                     callback(text)
-                f.write(text + "\n")
                 counter = len(text.split())
                 sentence = ""
                 # display_message(text)
                 # print("new words:" + str(new_words))
                 if not text == lastword:
                     print(f"Recognized: {text}")
+                    f.write(text + " ")
 
                     lastword = text
 
@@ -71,7 +71,7 @@ def start_audio_detection(file = "", callback=None):
                         # print(f"Misheard word: {i}")
                     for j in range(0, 10):
                         # print(speechdata)
-                        if speechdata[j] == text and j < 5:
+                        if j < len(speechdata) and speechdata[j] == text and j < 5:
 
 
                             for k in range(0, j):
@@ -86,7 +86,7 @@ def start_audio_detection(file = "", callback=None):
 
                             break
                 # print(f"Next words in speech: {speechdata[0:len(text.split())]}")
-                if enunciated_count > 20:
+                if enunciated_count > 4:
                     display_message("ENUNCIATE!!!")
                     enunciated_count = 0
 
