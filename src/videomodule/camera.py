@@ -5,6 +5,8 @@ import numpy as np
 
 # List to store messages with their timestamps
 active_messages = []
+xRightEarCoords = []
+xLeftEarCoords = []
 
 # Lists to track wrist positions over time
 right_wrist_tracker = []
@@ -126,6 +128,23 @@ def body_tracker():
             try:
                 landmarks = results.pose_landmarks.landmark
                 
+                noseX = landmarks[mp_pose.PoseLandmark.NOSE.value].x
+                leftEarX = landmarks[mp_pose.PoseLandmark.LEFT_EAR.value].x
+                rightEarX = landmarks[mp_pose.PoseLandmark.RIGHT_EAR.value].x
+                
+                if (rightEarX > noseX):
+                    xRightEarCoords.append(rightEarX)
+                else:
+                    xRightEarCoords.clear()
+
+                if (leftEarX < noseX):
+                    xLeftEarCoords.append(leftEarX)
+                else:
+                    xLeftEarCoords.clear()
+
+                if (len(xRightEarCoords) > 35 or len(xLeftEarCoords) > 35):
+                    display_message("TURN HEAD")
+                
                 # Get wrist coordinates
                 right_wrist = [
                     landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x,
@@ -145,6 +164,7 @@ def body_tracker():
                 pass
             
             # Display messages on the video feed
+
             image = display_text_on_feed(image)
             
             # Show the processed frame
@@ -156,3 +176,4 @@ def body_tracker():
     
     cam.release()
     cv2.destroyAllWindows()
+

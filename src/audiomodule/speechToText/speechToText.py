@@ -1,5 +1,6 @@
 import json
 from os.path import isfile
+from videomodule.camera import display_message
 
 from vosk import Model, KaldiRecognizer
 import pyaudio
@@ -14,31 +15,64 @@ stream.start_stream()
 
 
 def start_audio_detection(file = ""):
-    data = []
-    annunciation_count = 0
+    speechdata = []
+    enunciated_count = 0
+    new_words = 0
     if isfile(file):
         with open(file, "r") as file:  # Open and read input file
             content = file.read()
-            data = content.split()
-    print(data)
-    with open("audioToText.txt", "a") as f:
-        while True:
-            data = stream.read(8192)
+            speechdata = content.split()
+    with open("audioToText.txt", "w") as f:
+        display_message("START SPEECH")
 
+        while True:
+
+            data = stream.read(2048, exception_on_overflow=False)
+            text = None
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
                 result_json = json.loads(result)
+
                 text = result_json.get('text', '')
 
-                if text:
-                    print(f"Recognized: {text}")
-                    f.write(text + "\n")
-                    for i in text.split():
-                        for j in range(0, 5):
-                            if data[j] == i:
-                                data = data[j:]
-                            elif (data[j] != i):
-                                annunciation_count += 1
-                                print(annunciation_count)
-                    print(data[:10])
+            # else:
+            #     result = recognizer.PartialResult()  # Get partial results more frequently
+            #     result_json = json.loads(result)
+            #
+            #     text = result_json.get('partial', '')
 
+
+            if text:
+                # print(f"Recognized: {text}")
+
+                f.write(text + "\n")
+                new_words = len(text.split())
+                counter = len(text.split())
+                sentence = ""
+                # display_message(text)
+                lastmissheardword = ""
+                # print("new words:" + str(new_words))
+                for i in text.split():
+
+                    if not (i in speechdata[:counter]):
+
+                        enunciated_count += 1
+
+                        # print(f"Misheard word: {i}")
+                    for j in range(0, counter):
+                        # print(speechdata)
+                        if speechdata[j] == i and j < 5:
+
+                            speechdata = speechdata[j + 1:]
+                            sentence += ("---- " * j)
+
+                            sentence += f"{i} "
+
+                            enunciated_count -= .5
+
+                            break
+                # print(f"Next words in speech: {speechdata[0:len(text.split())]}")
+                if enunciated_count > 10:
+                    display_message("ENUNCIATE!!!")
+                # print(f"enunciated_count : {enunciated_count}")
+                print(sentence)
