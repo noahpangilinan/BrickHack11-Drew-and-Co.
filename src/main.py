@@ -6,9 +6,9 @@ from audiomodule.speechToText.speechScript import readSpeech
 from pathlib import Path
 
 
+
 print("my glorious king drew")
 readSpeech()
-
 
 def main():
     # Start the body tracker in a separate thread
