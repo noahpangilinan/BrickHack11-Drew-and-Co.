@@ -23,6 +23,7 @@ def start_audio_detection(file = "", callback=None):
     worddict = {}
     enunciated_count = 0
     new_words = 0
+    lastword = ""
     if isfile(file):
         with open(file, "r") as file:  # Open and read input file
             content = file.read()
@@ -32,7 +33,7 @@ def start_audio_detection(file = "", callback=None):
 
         while True:
 
-            data = stream.read(4096, exception_on_overflow=False)
+            data = stream.read(256, exception_on_overflow=False)
             text = None
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
@@ -48,8 +49,7 @@ def start_audio_detection(file = "", callback=None):
 
 
             if text:
-
-                # print(f"Recognized: {text}")
+                text = text.split()[-1]
                 if callback:
                     callback(text)
                 f.write(text + "\n")
@@ -57,32 +57,28 @@ def start_audio_detection(file = "", callback=None):
                 sentence = ""
                 # display_message(text)
                 # print("new words:" + str(new_words))
-                for i in text.split():
-                    if i in worddict.keys():
-                        worddict[i]+=1
-                    else:
-                        worddict[i] = 1
+                if not text == lastword:
+                    print(f"Recognized: {text}")
 
+                    lastword = text
 
-
-                    if not (i in speechdata[:counter]):
+                    if not (text in speechdata[:10]):
 
                         enunciated_count += 1
 
                         # print(f"Misheard word: {i}")
-                    for j in range(0, counter):
+                    for j in range(0, 10):
                         # print(speechdata)
-                        if speechdata[j] == i and j < 5:
-                            speechdata = speechdata[j + 1:]
+                        if speechdata[j] == text and j < 5:
+
+
+                            for k in range(0, j):
+                                trigger_highlight(speechdata[k])
+                            trigger_highlight(text)
+                            speechdata = speechdata[j:]
+                            print(speechdata[0:5])
                             sentence += ("---- " * j)
-                            print(i)
-
-                            for k in range(j):
-                                print(speechdata[k])
-                                trigger_highlight(speechdata[k], worddict[i])
-                            trigger_highlight(i, worddict[i])
-
-                            sentence += f"{i} "
+                            sentence += f"{text} "
 
                             enunciated_count -= .5
 

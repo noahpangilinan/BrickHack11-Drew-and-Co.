@@ -47,51 +47,63 @@ def createGUI(file):
     # Queue for thread communication
 highlight_queue = queue.Queue()
 
-
-def highlight_word(word, occurrence):
-    """Find and highlight the nth occurrence of a word in the text display."""
+def highlight_word(word):
+    """Find and highlight the first unhighlighted occurrence of a word,
+    only if the character before it is highlighted, and highlight the space after."""
 
     start_index = "1.0"  # Start searching from the beginning
-    count = 0  # Track occurrences of the word
-
     while True:
         # Find the next occurrence of the word
         start_index = text_display.search(word, start_index, stopindex=tk.END, nocase=True)
 
-        if not start_index:  # No more occurrences found
-            print(f"No valid occurrence #{occurrence} of '{word}' found.")
+        if not start_index:  # No more occurrences
+            print(f"No unhighlighted occurrences of '{word}' found.")
             return
 
-        count += 1  # Increment occurrence count
-
-        if count < occurrence:
-            # If we haven't reached the desired occurrence, continue searching
-            start_index = f"{start_index} + {len(word)}c"
-            continue
-
-        # Calculate end index
+        # Calculate end index based on word length
         line, char = map(int, start_index.split("."))
         end_index = f"{line}.{char + len(word)}"
 
-        # Check if this word is already highlighted 
+        # Check if the word is at the start of the file
+        is_at_start_of_file = char == 0
+
+        # Get the character before the word (if not at the start of the file)
+        char_before_index = f"{line}.{char - 1}" if char > 0 else None
+
+        # Get all highlighted ranges
+
         highlighted_ranges = text_display.tag_ranges("highlight")
-        is_highlighted = any(
+
+        # Check if the character before the word is highlighted (if not at the start of the file)
+        is_char_before_highlighted = (
+            char_before_index is not None and
+            any(
+                text_display.compare(char_before_index, ">=", highlighted_ranges[i]) and
+                text_display.compare(char_before_index, "<=", highlighted_ranges[i + 1])
+                for i in range(0, len(highlighted_ranges), 2)
+            )
+        )
+
+        # Check if this word is already highlighted
+        is_word_highlighted = any(
             text_display.compare(start_index, ">=", highlighted_ranges[i]) and
             text_display.compare(end_index, "<=", highlighted_ranges[i + 1])
             for i in range(0, len(highlighted_ranges), 2)
         )
 
-        if is_highlighted:
-            print(f"Skipping '{word}' at {start_index} (already highlighted).")
-            return
+        # Highlight if:
+        # 1. The word is at the start of the file, OR
+        # 2. The character before the word is highlighted
+        if (is_at_start_of_file or is_char_before_highlighted) and not is_word_highlighted:
+            # Highlight the word and the space after it
+            space_after_index = f"{line}.{char + len(word) + 1}"
+            print(f"Highlighting '{word}' at {start_index} to {space_after_index}")
+            text_display.tag_config("highlight", background="yellow", foreground="black")
+            text_display.tag_add("highlight", start_index, space_after_index)
+            return  # Stop after highlighting the first unhighlighted occurrence
 
-        # Highlight the found word
-        text_display.tag_config("highlight", background="yellow", foreground="black")
-        text_display.tag_add("highlight", start_index, end_index)
-        print(f"Highlighted occurrence #{occurrence} of '{word}' at {start_index}")
-        return  # Stop after highlighting the correct word
-
-
+        # Move to the next occurrence
+        start_index = end_index
 # Worker thread function
 def highlight_thread(file):
     """Thread that waits for a word to highlight."""
@@ -105,10 +117,11 @@ def highlight_thread(file):
             # Optionally, this can loop back and continue highlighting other words
 
 # Function to trigger highlighting (can be called from main thread)
-def trigger_highlight(word, index):
+def trigger_highlight(word):
     """Place the word into the queue to be highlighted."""
+    print(f"trigger highlight {word}")
     highlight_queue.put(word)
-    highlight_word(word, index)
+    highlight_word(word)
 
 
 
