@@ -15,7 +15,7 @@ def display_text_on_feed(image):
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 1
     thickness = 2
-    color = (0, 0, 255)  # Red color
+    color = (255, 255, 255)  # Red color
     line_spacing = 40  # Space between messages
     start_x = 50  # Left margin
     start_y = 50  # Top margin
