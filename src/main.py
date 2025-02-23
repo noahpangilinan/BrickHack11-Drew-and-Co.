@@ -12,9 +12,8 @@ from audiomodule.speechToText.speechScript import readSpeech
 from pathlib import Path
 
 
-
 print("my glorious king drew")
-readSpeech()
+fileOpened = readSpeech()
 
 
 
@@ -27,7 +26,8 @@ def main():
 
     tracker_thread.start()
     speech_thread.start()
-    highlight_thread_instance.start()
+    if (fileOpened):
+      highlight_thread_instance.start()
 
     time.sleep(3)
 

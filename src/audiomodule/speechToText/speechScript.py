@@ -3,15 +3,16 @@ from tkinterdnd2 import TkinterDnD, DND_FILES
 from tkinter import filedialog
 
 outScript = "speech.txt"
+fileOpened = False
 
 def readSpeech():
     clearFileOutput()
     createUI()
+    return fileOpened
 
 def fileExplorerInput():
     # Open the file explorer to save a file
-    selectedFile = filedialog.askopenfilename(title="Select a file")
-    
+    selectedFile = filedialog.askopenfilename(title="Select a file")   
     return selectedFile
     
 
@@ -29,11 +30,15 @@ def on_drop(event):
 
 def open_file():
     try:
+        global fileOpened
         # Get the file path from the entry widget
         file_path = inScript.get()
 
         if not file_path:
             file_path = fileExplorerInput()
+            fileOpened = (file_path != "")
+        else:
+            fileOpened = True
         
         with open(file_path, "r") as file:    # Open and read input file
             content = file.read()
@@ -56,7 +61,8 @@ def open_file():
         print(f"An error occurred: {e}")
 
     # Close UI
-    root.destroy()
+    if (file_path != ""):
+      root.destroy()
 
 
 def createUI():

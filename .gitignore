@@ -8,3 +8,4 @@ src/audiomodule/speechToText/__pycache__/speechScript.cpython-311.pyc
 src/audiomodule/speechToText/__pycache__/speechToText.cpython-311.pyc
 src/videomodule/__pycache__/camera.cpython-311.pyc
 speech.txt
+src/audiomodule/autoscroller/__pycache__/autoscroller.cpython-311.pyc
