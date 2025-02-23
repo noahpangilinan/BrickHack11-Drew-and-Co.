@@ -35,7 +35,7 @@ def start_audio_detection(file = "", callback=None):
 
         while True:
 
-            data = stream.read(256, exception_on_overflow=False)
+            data = stream.read(128, exception_on_overflow=False)
             text = None
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
@@ -71,7 +71,7 @@ def start_audio_detection(file = "", callback=None):
                         # print(f"Misheard word: {i}")
                     for j in range(0, 10):
                         # print(speechdata)
-                        if speechdata[j] == text and j < 5:
+                        if j < len(speechdata) and speechdata[j] == text and j < 5:
 
 
                             for k in range(0, j):

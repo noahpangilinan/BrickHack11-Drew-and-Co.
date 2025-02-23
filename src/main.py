@@ -22,8 +22,8 @@ readSpeech()
 def main():
     # Start the body tracker in a separate thread
     tracker_thread = threading.Thread(target=camera.body_tracker)
-    speech_thread = threading.Thread(target=start_audio_detection, args=[(Path("speech.txt"))])
-    highlight_thread_instance = threading.Thread(target=highlight_thread, args=[(Path("speech.txt"))])
+    speech_thread = threading.Thread(target=start_audio_detection, args=[(Path("speech.txt"))], daemon=True)
+    highlight_thread_instance = threading.Thread(target=highlight_thread, args=[(Path("speech.txt"))], daemon=True)
 
     tracker_thread.start()
     speech_thread.start()
