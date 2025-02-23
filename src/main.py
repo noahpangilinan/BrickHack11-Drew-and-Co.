@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 print("my glorious king drew")
-# readSpeech()
+readSpeech()
 
 def run_message_loop():
     for i in range(5):  # For example, 5 messages

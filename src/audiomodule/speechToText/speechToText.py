@@ -24,7 +24,7 @@ def start_audio_detection(file = ""):
             speechdata = content.split()
     with open("audioToText.txt", "w") as f:
         while True:
-            data = stream.read(8192/2)
+            data = stream.read(8192)
 
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
