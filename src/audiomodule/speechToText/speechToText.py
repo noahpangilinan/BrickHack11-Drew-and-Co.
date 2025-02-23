@@ -1,5 +1,6 @@
 import json
 from os.path import isfile
+from videomodule.camera import display_message
 
 from vosk import Model, KaldiRecognizer
 import pyaudio
@@ -14,16 +15,16 @@ stream.start_stream()
 
 
 def start_audio_detection(file = ""):
-    data = []
-    annunciation_count = 0
+    speechdata = []
+    enunciated_count = 0
+    new_words = 0
     if isfile(file):
         with open(file, "r") as file:  # Open and read input file
             content = file.read()
-            data = content.split()
-    print(data)
-    with open("audioToText.txt", "a") as f:
+            speechdata = content.split()
+    with open("audioToText.txt", "w") as f:
         while True:
-            data = stream.read(8192)
+            data = stream.read(8192/2)
 
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
@@ -32,13 +33,22 @@ def start_audio_detection(file = ""):
 
                 if text:
                     print(f"Recognized: {text}")
+                    print(f"Next words in speech: {speechdata[0:5]}")
+
                     f.write(text + "\n")
+                    new_words = len(text.split())
+                    display_message(text)
+
+                    print("new words:" + str(new_words))
                     for i in text.split():
+
                         for j in range(0, 5):
-                            if data[j] == i:
-                                data = data[j:]
-                            elif (data[j] != i):
-                                annunciation_count += 1
-                                print(annunciation_count)
-                    print(data[:10])
+                            if speechdata[j] == i:
+                                speechdata = speechdata[j:]
+                                break
+
+                            elif not (speechdata[j] == i) and (new_words > 0):
+                                enunciated_count += 1
+                                display_message("Non-enunciated words: " + str(enunciated_count))
+                                new_words -= 1
 

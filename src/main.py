@@ -7,8 +7,7 @@ from pathlib import Path
 
 
 print("my glorious king drew")
-readSpeech()
-start_audio_detection(Path("speech.txt"))
+# readSpeech()
 
 def run_message_loop():
     for i in range(5):  # For example, 5 messages
@@ -19,14 +18,20 @@ def run_message_loop():
 def main():
     # Start the body tracker in a separate thread
     tracker_thread = threading.Thread(target=camera.body_tracker)
+    speech_thread = threading.Thread(target=start_audio_detection, args=[(Path("speech.txt"))])
+    message_thread = threading.Thread(target=run_message_loop)
+
     tracker_thread.start()
+    speech_thread.start()
 
     time.sleep(3)
     # Add messages in the main thread
-    run_message_loop()
+    # run_message_loop()
 
     # Wait for the tracker thread to finish (optional)
     tracker_thread.join()
+    speech_thread.join()
+    message_thread.join()
 
 if __name__ == "__main__":
     main()
