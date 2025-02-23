@@ -1,4 +1,5 @@
 import json
+import re
 import time
 from os.path import isfile
 from tkinter import scrolledtext
@@ -28,6 +29,7 @@ def start_audio_detection(file = "", callback=None):
         with open(file, "r") as file:  # Open and read input file
             content = file.read()
             speechdata = content.split()
+            speechdata = [''.join(re.findall(r'[a-zA-Z]+', s)) for s in speechdata]
     with open("audioToText.txt", "w") as f:
         display_message("START SPEECH")
 
@@ -84,8 +86,10 @@ def start_audio_detection(file = "", callback=None):
 
                             break
                 # print(f"Next words in speech: {speechdata[0:len(text.split())]}")
-                if enunciated_count > 10:
+                if enunciated_count > 20:
                     display_message("ENUNCIATE!!!")
+                    enunciated_count = 0
+
                 # print(f"enunciated_count : {enunciated_count}")
                 if sentence:
                     print(sentence)

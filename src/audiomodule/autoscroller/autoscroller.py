@@ -1,3 +1,4 @@
+import re
 import tkinter as tk
 from pathlib import Path
 from tkinter import scrolledtext
@@ -16,23 +17,23 @@ def createGUI(file):
     global text_display
 
     # Set window size
-    window_width = 600
-    window_height = 400
+    window_width = screen_width
+    window_height = screen_height
 
     # Set position for right side of the screen
-    position_top_right = (screen_width - window_width),(screen_height - window_height) // 2  # Right side, center vertically
+    position_top_right = (screen_width),(screen_height) // 2  # Right side, center vertically
 
     # Set the window geometry
     root.geometry(f"{window_width}x{window_height + position_top_right[1]}")
 
     # Scrolled Text widget to display speech script
-    text_display = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=20, font=("Arial", 14))
+    text_display = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=60, font=("Arial", 14))
     text_display.pack(padx=10, pady=10)
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
 
     # Set the window geometry to the left half of the screen
-    root.geometry(f"{screen_width // 2}x{screen_height}")
+    root.geometry(f"{screen_width // 2}x{screen_height-50}")
 
     # Optionally, remove window decorations for a cleaner look
     root.overrideredirect(True)
@@ -41,6 +42,7 @@ def createGUI(file):
 
     with open(script_path, "r") as f:
         script_text = f.read()
+        script_text = re.sub(r"[^\w\s.]", "", script_text)
 
     text_display.insert(tk.END, script_text)
     # text_display.pack()
