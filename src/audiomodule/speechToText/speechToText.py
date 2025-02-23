@@ -23,32 +23,56 @@ def start_audio_detection(file = ""):
             content = file.read()
             speechdata = content.split()
     with open("audioToText.txt", "w") as f:
-        while True:
-            data = stream.read(8192)
+        display_message("START SPEECH")
 
+        while True:
+
+            data = stream.read(2048, exception_on_overflow=False)
+            text = None
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
                 result_json = json.loads(result)
+
                 text = result_json.get('text', '')
 
-                if text:
-                    print(f"Recognized: {text}")
-                    print(f"Next words in speech: {speechdata[0:5]}")
+            # else:
+            #     result = recognizer.PartialResult()  # Get partial results more frequently
+            #     result_json = json.loads(result)
+            #
+            #     text = result_json.get('partial', '')
 
-                    f.write(text + "\n")
-                    new_words = len(text.split())
-                    display_message(text)
 
-                    print("new words:" + str(new_words))
-                    for i in text.split():
+            if text:
+                # print(f"Recognized: {text}")
 
-                        for j in range(0, 5):
-                            if speechdata[j] == i:
-                                speechdata = speechdata[j:]
-                                break
+                f.write(text + "\n")
+                new_words = len(text.split())
+                counter = len(text.split())
+                sentence = ""
+                # display_message(text)
+                lastmissheardword = ""
+                # print("new words:" + str(new_words))
+                for i in text.split():
 
-                            elif not (speechdata[j] == i) and (new_words > 0):
-                                enunciated_count += 1
-                                display_message("Non-enunciated words: " + str(enunciated_count))
-                                new_words -= 1
+                    if not (i in speechdata[:counter]):
 
+                        enunciated_count += 1
+
+                        # print(f"Misheard word: {i}")
+                    for j in range(0, counter):
+                        # print(speechdata)
+                        if speechdata[j] == i and j < 5:
+
+                            speechdata = speechdata[j + 1:]
+                            sentence += ("---- " * j)
+
+                            sentence += f"{i} "
+
+                            enunciated_count -= .5
+
+                            break
+                # print(f"Next words in speech: {speechdata[0:len(text.split())]}")
+                if enunciated_count > 10:
+                    display_message("ENUNCIATE!!!")
+                # print(f"enunciated_count : {enunciated_count}")
+                print(sentence)
