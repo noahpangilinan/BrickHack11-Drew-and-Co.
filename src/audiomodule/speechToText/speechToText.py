@@ -1,4 +1,5 @@
 import json
+import time
 from os.path import isfile
 from tkinter import scrolledtext
 import tkinter as tk
@@ -19,6 +20,7 @@ stream.start_stream()
 
 def start_audio_detection(file = "", callback=None):
     speechdata = []
+    worddict = {}
     enunciated_count = 0
     new_words = 0
     if isfile(file):
@@ -30,7 +32,7 @@ def start_audio_detection(file = "", callback=None):
 
         while True:
 
-            data = stream.read(2048, exception_on_overflow=False)
+            data = stream.read(4096, exception_on_overflow=False)
             text = None
             if recognizer.AcceptWaveform(data):
                 result = recognizer.Result()
@@ -43,21 +45,25 @@ def start_audio_detection(file = "", callback=None):
                 result_json = json.loads(result)
 
                 text = result_json.get('partial', '')
-                trigger_highlight(text)
 
 
             if text:
+
                 # print(f"Recognized: {text}")
                 if callback:
                     callback(text)
                 f.write(text + "\n")
-                new_words = len(text.split())
                 counter = len(text.split())
                 sentence = ""
                 # display_message(text)
-                lastmissheardword = ""
                 # print("new words:" + str(new_words))
                 for i in text.split():
+                    if i in worddict.keys():
+                        worddict[i]+=1
+                    else:
+                        worddict[i] = 1
+
+
 
                     if not (i in speechdata[:counter]):
 
@@ -67,9 +73,14 @@ def start_audio_detection(file = "", callback=None):
                     for j in range(0, counter):
                         # print(speechdata)
                         if speechdata[j] == i and j < 5:
-
                             speechdata = speechdata[j + 1:]
                             sentence += ("---- " * j)
+                            print(i)
+
+                            for k in range(j):
+                                print(speechdata[k])
+                                trigger_highlight(speechdata[k], worddict[i])
+                            trigger_highlight(i, worddict[i])
 
                             sentence += f"{i} "
 
@@ -80,4 +91,5 @@ def start_audio_detection(file = "", callback=None):
                 if enunciated_count > 10:
                     display_message("ENUNCIATE!!!")
                 # print(f"enunciated_count : {enunciated_count}")
-                print(sentence)
+                if sentence:
+                    print(sentence)

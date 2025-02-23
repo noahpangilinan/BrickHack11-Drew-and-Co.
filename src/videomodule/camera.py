@@ -86,7 +86,6 @@ def check_wrist():
         if np.sqrt((llatest_x - x) ** 2 + (llatest_y - y) ** 2) > movement_threshold:
             return
     
-    print("Move your wrist")
     display_message("Move your wrist")
 
 def body_tracker():
