@@ -29,6 +29,17 @@ def display_text_on_feed(image):
     current_time = time.time()
     active_messages = [msg for msg in active_messages if current_time - msg[1] < 3]
 
+    displayed_messages = set()
+
+    filtered_messages = []
+    for text, timestamp in active_messages:
+        if text not in displayed_messages:
+            displayed_messages.add(text)
+            filtered_messages.append((text, timestamp))
+
+    # Update active_messages to remove duplicates
+    active_messages = filtered_messages
+
     # Display messages staggered vertically
     for i, (text, _) in enumerate(active_messages):
         y_position = start_y + i * line_spacing
@@ -85,9 +96,7 @@ def check_wrist():
     for x, y, _ in left_wrist_tracker[:-1]:
         if np.sqrt((llatest_x - x) ** 2 + (llatest_y - y) ** 2) > movement_threshold:
             return
-    
-    print("Move your wrist")
-    display_message("Move your wrist")
+    display_message("Move your hands")
 
 def body_tracker():
     """
@@ -101,6 +110,13 @@ def body_tracker():
         print("Error: Could not open camera.")
         return
     
+    cam.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+    cam.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
+    # Make window resizable
+    cv2.namedWindow("Mediapipe Feed", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Mediapipe Feed", 1280, 720)
+
     last_track_time = time.time()
     
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
@@ -121,9 +137,7 @@ def body_tracker():
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             
-            # Draw pose landmarks
-            if results.pose_landmarks:
-                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+            mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
             
             try:
                 landmarks = results.pose_landmarks.landmark

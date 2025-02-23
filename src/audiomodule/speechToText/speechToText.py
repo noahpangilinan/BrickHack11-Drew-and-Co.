@@ -43,7 +43,7 @@ def start_audio_detection(file = ""):
 
 
             if text:
-                # print(f"Recognized: {text}")
+                print(f"Recognized: {text}")
 
                 f.write(text + "\n")
                 new_words = len(text.split())
