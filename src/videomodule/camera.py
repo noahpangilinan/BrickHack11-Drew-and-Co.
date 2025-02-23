@@ -131,6 +131,16 @@ def body_tracker():
                 noseX = landmarks[mp_pose.PoseLandmark.NOSE.value].x
                 leftEarX = landmarks[mp_pose.PoseLandmark.LEFT_EAR.value].x
                 rightEarX = landmarks[mp_pose.PoseLandmark.RIGHT_EAR.value].x
+
+                # Get wrist coordinates
+                right_wrist = [
+                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x,
+                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y
+                ]
+                left_wrist = [
+                    landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
+                    landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y
+                ]
                 
                 if (rightEarX > noseX):
                     xRightEarCoords.append(rightEarX)
@@ -142,22 +152,11 @@ def body_tracker():
                 else:
                     xLeftEarCoords.clear()
 
-                if (len(xRightEarCoords) > 35 or len(xLeftEarCoords) > 35):
-                    display_message("TURN HEAD")
-                
-                # Get wrist coordinates
-                right_wrist = [
-                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].x,
-                    landmarks[mp_pose.PoseLandmark.RIGHT_WRIST.value].y
-                ]
-                left_wrist = [
-                    landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].x,
-                    landmarks[mp_pose.PoseLandmark.LEFT_WRIST.value].y
-                ]
-                
                 # Track wrist movement every second
                 if time.time() - last_track_time >= 1:
                     track_wrist(right_wrist[0], right_wrist[1], left_wrist[0], left_wrist[1])
+                    if (len(xRightEarCoords) > 35 or len(xLeftEarCoords) > 35):
+                        display_message("TURN HEAD")
                     last_track_time = time.time()
             
             except AttributeError:
