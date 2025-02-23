@@ -9,25 +9,27 @@ global script_path
 def createGUI(file):
     root = tk.Tk()
     root.title("Live Speech Tracker")
+
+    # Set window size
+    window_width = 700  # Adjust as needed
+    window_height = 850  # Adjust as needed
+
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
+
+    position_x = screen_width - window_width  # 50px margin from the right
+    position_y = (screen_height - window_height) // 2  # Center vertically
+
     global script_text
     global script_path
     global text_display
 
-    # Set window size
-    window_width = 600
-    window_height = 400
-
-    # Set position for right side of the screen
-    position_top_right = (screen_width - window_width),(screen_height - window_height) // 2  # Right side, center vertically
-
-    # Set the window geometry
-    root.geometry(f"{window_width}x{window_height + position_top_right[1]}")
+    # Set window geometry
+    root.geometry(f"{window_width}x{window_height}+{position_x}+{position_y}")
 
     # Scrolled Text widget to display speech script
     text_display = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=20, font=("Arial", 14))
-    text_display.pack(padx=10, pady=10)
+    text_display.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
     # Load the script into the text box
     script_path = Path(file)
@@ -71,7 +73,7 @@ def highlight_word(word, occurrence):
         line, char = map(int, start_index.split("."))
         end_index = f"{line}.{char + len(word)}"
 
-        # Check if this word is already highlighted
+        # Check if this word is already highlighted 
         highlighted_ranges = text_display.tag_ranges("highlight")
         is_highlighted = any(
             text_display.compare(start_index, ">=", highlighted_ranges[i]) and
